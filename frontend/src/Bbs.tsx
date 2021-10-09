@@ -10,6 +10,11 @@ const Bbs = () => {
 
     useEffect(() => {
       socket.current = new WebSocket("ws://localhost:8765");
+      socket.current.onopen = () => {
+        if (socket.current) {
+          socket.current.send(JSON.stringify({ name: "listen comments", data: "" }));
+        }
+      }
       socket.current.onmessage = (msg) => setComments((prev) => {
         return [...prev, `${msg.data}`];
       });
