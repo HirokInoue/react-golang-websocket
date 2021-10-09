@@ -30,7 +30,7 @@ const Bbs = () => {
     const submitHandler = (e: React.MouseEvent) => {
       e.preventDefault();
       if (socket.current) {
-        socket.current.send(JSON.stringify({ name: "send comment", data: comment }));
+        socket.current.send(JSON.stringify({ name: "add comment", data: comment }));
       }
       setComment('');
     };
