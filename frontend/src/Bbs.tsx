@@ -4,7 +4,7 @@ import Textarea from './Textarea';
 
 const Bbs = () => {
     const [ comment, setComment ] = useState("");
-    const [ comments, setComments ] = useState(new Array());
+    const [ comments, setComments ] = useState("");
   
     const socket = useRef<WebSocket | null>(null);
 
@@ -15,10 +15,8 @@ const Bbs = () => {
           socket.current.send(JSON.stringify({ name: "listen comments", data: "" }));
         }
       }
-      socket.current.onmessage = (msg) => setComments((prev) => {
-        return [...prev, `${msg.data}`];
-      });
-  }, []);
+      socket.current.onmessage = (msg) => setComments(`${msg.data}`);
+    }, []);
 
     useEffect(() => {
       return () => {
