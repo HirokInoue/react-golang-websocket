@@ -1,8 +1,7 @@
-package main
+package presentation
 
 import (
-	"fmt"
-	"time"
+	"github.com/gorilla/websocket"
 )
 
 type Body struct {
@@ -11,37 +10,38 @@ type Body struct {
 }
 
 // Client is responsible for read request and write response
+func NewClient(s *websocket.Conn, f FindHandler) *Client {
+	return &Client{
+		send:        make(chan Body),
+		socket:      s,
+		findHandler: f,
+	}
+}
+
 type Client struct {
-	send chan Body
+	send        chan Body
+	socket      *websocket.Conn
+	findHandler FindHandler
 }
 
 func (c *Client) Read() {
-	// TODO: read request
+	var body Body
+	for {
+		if err := c.socket.ReadJSON(&body); err != nil {
+			break
+		}
+		if handler, ok := c.findHandler(body.Name); ok {
+			handler(c, body.Data)
+		}
+	}
+	c.socket.Close()
 }
 
 func (c *Client) Write() {
 	for msg := range c.send {
-		// TODO: write response
-		fmt.Printf("%#v\n", msg)
+		if err := c.socket.WriteJSON(msg); err != nil {
+			break
+		}
 	}
-}
-
-func (c *Client) Polling() {
-	// TODO: read database
-	for {
-		time.Sleep(time.Second * 5)
-		c.send <- Body{Name: "polling", Data: ""}
-	}
-}
-
-func NewClient() *Client {
-	return &Client{
-		send: make(chan Body),
-	}
-}
-
-func main() {
-	client := NewClient()
-	go client.Polling()
-	client.Write()
+	c.socket.Close()
 }
