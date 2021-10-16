@@ -6,6 +6,7 @@ import (
 
 type Body struct {
 	Name string      `json:"name"`
+	Ok   bool        `json:"ok"`
 	Data interface{} `json:"data"`
 }
 
@@ -31,7 +32,7 @@ func (c *Client) Read() {
 			break
 		}
 		if handler, ok := c.findHandler(body.Name); ok {
-			handler(c, body.Data)
+			handler.exec(c, body.Data)
 		}
 	}
 	c.socket.Close()
