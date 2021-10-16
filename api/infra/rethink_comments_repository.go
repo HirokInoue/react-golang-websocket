@@ -7,10 +7,10 @@ import (
 	r "github.com/dancannon/gorethink"
 )
 
-// type Comment struct {
-// 	Id      string `gorethink:"id,omitempty"`
-// 	Content string `gorethink:"content"`
-// }
+type rethinkComment struct {
+	Id      string `gorethink:"id,omitempty"`
+	Content string `gorethink:"content"`
+}
 
 func NewCommentsRepository(s *r.Session) *RethinkCommentsRepository {
 	return &RethinkCommentsRepository{
@@ -25,8 +25,9 @@ type RethinkCommentsRepository struct {
 }
 
 func (cr *RethinkCommentsRepository) Save(c d.Comment) error {
+	rc := rethinkComment{Id: c.Id, Content: c.Content}
 	_, err := r.Table("comments").
-		Insert(c).
+		Insert(rc).
 		RunWrite(cr.session)
 	if err != nil {
 		return err
