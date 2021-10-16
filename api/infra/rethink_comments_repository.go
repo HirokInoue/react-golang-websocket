@@ -2,14 +2,18 @@ package infra
 
 import (
 	"fmt"
+	"time"
 
 	d "github.com/HirokInoue/realtimeweb/domain"
 	r "github.com/dancannon/gorethink"
 )
 
+const TIME_FORMAT = "2006-01-02T15:04:05+09:00"
+
 type rethinkComment struct {
-	Id      string `gorethink:"id,omitempty"`
-	Content string `gorethink:"content"`
+	Id        string `gorethink:"id,omitempty"`
+	Content   string `gorethink:"content"`
+	CreatedAt string `gorethink:"created_at"`
 }
 
 func NewCommentsRepository(s *r.Session) *RethinkCommentsRepository {
@@ -25,7 +29,7 @@ type RethinkCommentsRepository struct {
 }
 
 func (cr *RethinkCommentsRepository) Save(c d.Comment) error {
-	rc := rethinkComment{Id: c.Id, Content: c.Content}
+	rc := rethinkComment{Id: c.Id, Content: c.Content, CreatedAt: cr.now()}
 	_, err := r.Table("comments").
 		Insert(rc).
 		RunWrite(cr.session)
@@ -37,7 +41,8 @@ func (cr *RethinkCommentsRepository) Save(c d.Comment) error {
 
 func (cr *RethinkCommentsRepository) Retrieve() ([]d.Comment, error) {
 	res, err := r.Table("comments").
-		Pluck("id", "content").
+		Pluck("id", "content", "created_at").
+		OrderBy("created_at").
 		Run(cr.session)
 	if err != nil {
 		return nil, err
@@ -56,4 +61,9 @@ func (cr *RethinkCommentsRepository) Retrieve() ([]d.Comment, error) {
 		return nil, res.Err()
 	}
 	return comments, nil
+}
+
+func (cr *RethinkCommentsRepository) now() string {
+	japan, _ := time.LoadLocation("Asia/Tokyo")
+	return time.Now().In(japan).Format(TIME_FORMAT)
 }
