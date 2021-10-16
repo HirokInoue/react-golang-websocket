@@ -48,12 +48,12 @@ func (cr *RethinkCommentsRepository) Retrieve() ([]d.Comment, error) {
 	var row map[string]interface{}
 	for res.Next(&row) {
 		comments = append(comments, d.Comment{
-			Id:      fmt.Sprintf("%f", row["id"]),
-			Content: fmt.Sprintf("%f", row["content"]),
+			Id:      fmt.Sprintf("%s", row["id"]),
+			Content: fmt.Sprintf("%s", row["content"]),
 		})
 	}
 	if res.Err() != nil {
-		return nil, err
+		return nil, res.Err()
 	}
 	return comments, nil
 }
