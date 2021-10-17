@@ -1,13 +1,13 @@
 import React from 'react';
 
 interface Props {
-  value: string
+  value: string[]
 }
 
 const Textarea = ({ value }: Props)  => {
   return (
     <>
-      <textarea value={value} rows={10} readOnly></textarea>
+      <textarea value={value.join('\n')} rows={10} readOnly></textarea>
     </>
   );
 };

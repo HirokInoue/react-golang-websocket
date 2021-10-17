@@ -10,7 +10,7 @@ import Textarea from './Textarea';
 
 const Bbs = () => {
     const [ comment, setComment ] = useState("");
-    const [ comments, setComments ] = useState("");
+    const [ comments, setComments ] = useState(new Array());
   
     const socket = useRef<WebSocket | null>(null);
 
