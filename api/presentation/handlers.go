@@ -67,7 +67,7 @@ func (lh *ListenCommentsHandler) exec(c *Client, data interface{}) {
 				log.Print(err)
 				isOk = false
 			}
-			c.send <- Body{Name: "listen comment", Ok: isOk, Data: comments}
+			c.send <- Body{Name: "listen comments", Ok: isOk, Data: comments}
 			time.Sleep(time.Second * 3)
 		}
 	}()
