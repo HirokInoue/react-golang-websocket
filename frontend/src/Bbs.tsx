@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Input from './Input';
 import Textarea from './Textarea';
 
+// type msg = {
+//   name: string,
+//   ok: boolean,
+//   data: any,
+// }
+
 const Bbs = () => {
     const [ comment, setComment ] = useState("");
     const [ comments, setComments ] = useState("");
@@ -15,7 +21,17 @@ const Bbs = () => {
           socket.current.send(JSON.stringify({ name: "listen comments", data: "" }));
         }
       }
-      socket.current.onmessage = (msg) => setComments(`${msg.data}`);
+      socket.current.onmessage = function (e) {
+        const msg = JSON.parse(e.data);
+        switch (msg.name) {
+          case 'add comment':
+            console.log(msg.ok);
+            break;
+          case 'listen comments':
+            setComments(msg.data);
+            break;
+        }
+      }
     }, []);
 
     useEffect(() => {
