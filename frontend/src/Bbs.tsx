@@ -2,12 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Input from './Input';
 import Textarea from './Textarea';
 
-// type msg = {
-//   name: string,
-//   ok: boolean,
-//   data: any,
-// }
-
 const Bbs = () => {
     const [ comment, setComment ] = useState("");
     const [ comments, setComments ] = useState(new Array());
