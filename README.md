@@ -1,2 +1,2 @@
 # react-golang-websocket
-ReactとGolangでWebsocketを試すリポジトリ
+ReactとGolangでWebSocketを試すリポジトリ
