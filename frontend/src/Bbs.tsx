@@ -53,7 +53,7 @@ const Bbs = () => {
         <h2>Realtime BBS</h2>
         <form>
           <div>
-            <p><Textarea value={comments}/></p>
+            <p><Textarea comments={comments}/></p>
           </div>
           <div>
             <p>

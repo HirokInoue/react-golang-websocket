@@ -1,13 +1,13 @@
 import React from 'react';
 
 interface Props {
-  value: string[]
+  comments: string[]
 }
 
-const Textarea = ({ value }: Props)  => {
+const Textarea = ({ comments }: Props)  => {
   return (
     <>
-      <textarea value={value.join('\n')} rows={10} readOnly></textarea>
+      <textarea value={comments.join('\n')} rows={10} readOnly></textarea>
     </>
   );
 };
