@@ -6,7 +6,7 @@ import (
 
 func NewSession(dbName string) (*r.Session, error) {
 	session, err := r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
+		Address:  "db:28015",
 		Database: dbName,
 	})
 	if err != nil {
