@@ -22,6 +22,9 @@ const Bbs = () => {
             console.log(msg.ok);
             break;
           case 'listen comments':
+            if (msg.data == null) {
+              return;
+            }
             setComments(msg.data);
             break;
         }
