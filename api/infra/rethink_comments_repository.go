@@ -67,3 +67,28 @@ func (cr *RethinkCommentsRepository) now() string {
 	japan, _ := time.LoadLocation("Asia/Tokyo")
 	return time.Now().In(japan).Format(TIME_FORMAT)
 }
+
+func (cr *RethinkCommentsRepository) Feed(c chan<- d.Comment, e chan<- error) {
+	res, err := r.Table("comments").
+		OrderBy(r.OrderByOpts{Index: r.Asc("created_at")}).
+		Changes(r.ChangesOpts{IncludeInitial: true}).
+		Run(cr.session)
+	if err != nil {
+		e <- err
+	}
+
+	go func() {
+		defer res.Close()
+		var change r.ChangeResponse
+		for res.Next(&change) {
+			n := change.NewValue.(map[string]interface{})
+			c <- d.Comment{
+				Id:      fmt.Sprintf("%s", n["id"]),
+				Content: fmt.Sprintf("%s", n["content"]),
+			}
+		}
+		if res.Err() != nil {
+			e <- res.Err()
+		}
+	}()
+}

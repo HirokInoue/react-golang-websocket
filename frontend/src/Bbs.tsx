@@ -19,13 +19,16 @@ const Bbs = () => {
         const msg = JSON.parse(e.data);
         switch (msg.name) {
           case 'add comment':
-            console.log(msg.ok);
+            console.log("Add: " + msg.ok);
             break;
           case 'listen comments':
             if (msg.data == null) {
               return;
             }
-            setComments(msg.data);
+            console.log("Listen: " + msg.ok);
+            setComments((prev) => {
+              return [...prev, `${msg.data}`];
+            });
             break;
         }
       }

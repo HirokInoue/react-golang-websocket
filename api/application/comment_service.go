@@ -22,14 +22,14 @@ func (cs *CommentService) Add(data string) error {
 	return nil
 }
 
-func (cs *CommentService) Listen() ([]string, error) {
-	commentModelList, err := cs.repos.Retrieve()
-	if err != nil {
-		return nil, err
+func (cs *CommentService) Listen(s chan<- string, e chan error) {
+	c := make(chan d.Comment)
+	cs.repos.Feed(c, e)
+	for {
+		select {
+		case comment := <-c:
+			s <- comment.Content
+		case <-e:
+		}
 	}
-	var comments []string
-	for _, v := range commentModelList {
-		comments = append(comments, v.Content)
-	}
-	return comments, nil
 }

@@ -3,7 +3,6 @@ package presentation
 import (
 	"fmt"
 	"log"
-	"time"
 
 	a "github.com/HirokInoue/realtimeweb/application"
 	i "github.com/HirokInoue/realtimeweb/infra"
@@ -60,15 +59,24 @@ type ListenCommentsHandler struct {
 
 func (lh *ListenCommentsHandler) exec(c *Client, data interface{}) {
 	go func() {
+		s := make(chan string)
+		e := make(chan error)
+
+		go lh.service.Listen(s, e)
+		body := Body{
+			Name: "listen comments",
+		}
 		for {
-			isOk := true
-			comments, err := lh.service.Listen()
-			if err != nil {
+			select {
+			case content := <-s:
+				body.Ok = true
+				body.Data = content
+			case err := <-e:
+				body.Ok = false
+				body.Data = ""
 				log.Print(err)
-				isOk = false
 			}
-			c.send <- Body{Name: "listen comments", Ok: isOk, Data: comments}
-			time.Sleep(time.Second * 3)
+			c.send <- body
 		}
 	}()
 }
