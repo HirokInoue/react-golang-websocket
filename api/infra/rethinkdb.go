@@ -1,12 +1,14 @@
 package infra
 
 import (
+	"os"
+
 	r "github.com/dancannon/gorethink"
 )
 
 func NewSession(dbName string) (*r.Session, error) {
 	session, err := r.Connect(r.ConnectOpts{
-		Address:  "db:28015",
+		Address:  os.Getenv("DB_HOST"),
 		Database: dbName,
 	})
 	if err != nil {

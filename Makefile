@@ -1,7 +1,7 @@
 run: build-frontend build-api start
 	
 start:
-	docker-compose up
+	env DB_HOST=db:28015 docker-compose up
 
 build-frontend:
 	cd frontend; yarn build-prod

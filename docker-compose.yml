@@ -20,6 +20,8 @@ services:
       - ./api/realtimeweb:/api/realtimeweb
     ports:
       - 8765:8765
+    environment:
+      DB_HOST: "${DB_HOST}"
     depends_on:
       - rethinkdb
     working_dir: /api
