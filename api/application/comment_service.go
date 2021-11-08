@@ -1,6 +1,8 @@
 package application
 
 import (
+	"context"
+
 	d "github.com/HirokInoue/realtimeweb/domain"
 )
 
@@ -22,14 +24,18 @@ func (cs *CommentService) Add(data string) error {
 	return nil
 }
 
-func (cs *CommentService) Listen(s chan<- string, e chan error) {
-	c := make(chan d.Comment)
-	cs.repos.Feed(c, e)
-	for {
-		select {
-		case comment := <-c:
-			s <- comment.Content
-		case <-e:
+func (cs *CommentService) Listen(s chan<- string, e chan error, ctx context.Context) {
+	go func() {
+		comment := make(chan d.Comment)
+		cs.repos.Feed(comment, e, ctx)
+		for {
+			select {
+			case c := <-comment:
+				s <- c.Content
+			case <-e:
+			case <-ctx.Done():
+				return
+			}
 		}
-	}
+	}()
 }

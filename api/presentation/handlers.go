@@ -8,6 +8,10 @@ import (
 	i "github.com/HirokInoue/realtimeweb/infra"
 )
 
+const (
+	listenStop = iota
+)
+
 type Handler interface {
 	exec(*Client, interface{})
 }
@@ -56,23 +60,26 @@ type ListenCommentsHandler struct {
 }
 
 func (lh *ListenCommentsHandler) exec(c *Client, data interface{}) {
+	ctx := c.NewStopContext(listenStop)
 	go func() {
-		s := make(chan string)
-		e := make(chan error)
+		str := make(chan string)
+		err := make(chan error)
 
-		go lh.service.Listen(s, e)
+		lh.service.Listen(str, err, ctx)
 		body := Body{
 			Name: "listen comments",
 		}
 		for {
 			select {
-			case content := <-s:
+			case content := <-str:
 				body.Ok = true
 				body.Data = content
-			case err := <-e:
+			case e := <-err:
 				body.Ok = false
 				body.Data = ""
-				log.Print(err)
+				log.Println(e)
+			case <-ctx.Done():
+				return
 			}
 			c.send <- body
 		}

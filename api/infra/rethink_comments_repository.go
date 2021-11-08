@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -68,27 +69,41 @@ func (cr *RethinkCommentsRepository) now() string {
 	return time.Now().In(japan).Format(TIME_FORMAT)
 }
 
-func (cr *RethinkCommentsRepository) Feed(c chan<- d.Comment, e chan<- error) {
-	res, err := r.Table("comments").
+func (cr *RethinkCommentsRepository) Feed(c chan<- d.Comment, e chan<- error, ctx context.Context) {
+	cursor, err := r.Table("comments").
 		OrderBy(r.OrderByOpts{Index: r.Asc("created_at")}).
 		Changes(r.ChangesOpts{IncludeInitial: true}).
 		Run(cr.session)
 	if err != nil {
 		e <- err
+		return
 	}
 
+	ch := make(chan r.ChangeResponse)
 	go func() {
-		defer res.Close()
+		defer cursor.Close()
 		var change r.ChangeResponse
-		for res.Next(&change) {
-			n := change.NewValue.(map[string]interface{})
-			c <- d.Comment{
-				Id:      fmt.Sprintf("%s", n["id"]),
-				Content: fmt.Sprintf("%s", n["content"]),
-			}
+		for cursor.Next(&change) {
+			ch <- change
 		}
-		if res.Err() != nil {
-			e <- res.Err()
+		if cursor.Err() != nil {
+			e <- cursor.Err()
+		}
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				cursor.Close()
+				return
+			case change := <-ch:
+				v := change.NewValue.(map[string]interface{})
+				c <- d.Comment{
+					Id:      fmt.Sprintf("%s", v["id"]),
+					Content: fmt.Sprintf("%s", v["content"]),
+				}
+			}
 		}
 	}()
 }
