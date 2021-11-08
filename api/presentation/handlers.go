@@ -29,15 +29,13 @@ type AddCommentHandler struct {
 }
 
 func (ah *AddCommentHandler) exec(c *Client, data interface{}) {
-	go func() {
-		isOk := true
-		err := ah.service.Add(fmt.Sprintf("%s", data))
-		if err != nil {
-			log.Print(err)
-			isOk = false
-		}
-		c.send <- Body{Name: "add comment", Ok: isOk}
-	}()
+	isOk := true
+	err := ah.service.Add(fmt.Sprintf("%s", data))
+	if err != nil {
+		log.Print(err)
+		isOk = false
+	}
+	c.send <- Body{Name: "add comment", Ok: isOk}
 }
 
 func NewListenCommentsHandler() (*ListenCommentsHandler, error) {
